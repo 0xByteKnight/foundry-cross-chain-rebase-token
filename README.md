@@ -36,10 +36,11 @@ The system comprises the following core contracts:
 - Manages user deposits and mints corresponding rebase tokens.
 - Handles the accrual and distribution of rewards to token holders.
 
-### 🔹 [`CrossChainBridge.sol`](src/CrossChainBridge.sol)
+### 🔹 [`RebasePwjTokenPool.sol`](src/RebasePwjTokenPool.sol)
 
 - Integrates with Chainlink's CCIP to facilitate cross-chain token transfers.
-- Ensures consistent token behavior and supply across multiple networks.
+- Supports locking and burning tokens on the source chain while releasing and minting on the destination chain.
+- Ensures accurate yield calculations by encoding and decoding user interest rates.
 
 ---
 
@@ -95,6 +96,30 @@ To redeem ETH, users can burn their rebase tokens.
 
 ```solidity
 vault.redeem(rebaseTokenAmount);
+```
+
+### 🌉 Bridging Tokens Cross-Chain
+
+The `RebasePwjTokenPool` contract enables cross-chain token transfers using Chainlink CCIP.
+
+#### 🔒 Locking or Burning Tokens for Transfer
+```solidity
+Pool.LockOrBurnInV1 memory lockOrBurnIn = Pool.LockOrBurnInV1({
+    originalSender: msg.sender,
+    amount: 1000 * 1e18,
+    remoteChainSelector: destinationChainId
+});
+RebasePwjTokenPool.lockOrBurn(lockOrBurnIn);
+```
+
+#### 🔓 Releasing or Minting Tokens on the Destination Chain
+```solidity
+Pool.ReleaseOrMintInV1 memory releaseOrMintIn = Pool.ReleaseOrMintInV1({
+    receiver: msg.sender,
+    amount: 1000 * 1e18,
+    sourcePoolData: encodedInterestRate
+});
+RebasePwjTokenPool.releaseOrMint(releaseOrMintIn);
 ```
 
 ---
